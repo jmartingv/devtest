@@ -63,10 +63,25 @@ def test_create_demand():
         json={"requestedFloor": 5, "isVacant": False}
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 201
+
+def test_invalid_demand():    
+
+    response_basement = client.post(
+        "/demand", 
+        json={"requestedFloor": -3, "isVacant": False}
+    )
+
+    response_above = client.post(
+        "/demand", 
+        json={"requestedFloor": 23, "isVacant": True}
+    )
+
+    assert response_basement.status_code == 400
+    assert response_above.status_code == 400
 
 def test_request_demand():
-    """Test GET endpoint for retrieveng demand data"""
+    """Test GET endpoint for retrieving demand data"""
     
     response = client.get(
         "/demand"

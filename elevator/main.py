@@ -13,11 +13,12 @@ app = FastAPI()
 async def check_health():
     return "OK"
 
-@app.post('/demand', response_model=schemas.ElevatorDemandResponseSchema)
+@app.post('/demand', response_model=schemas.ElevatorDemandResponseSchema, status_code=201)
 async def add_demand(request: schemas.ElevatorDemandSchema, db: Session = Depends(get_db)):
 
-    if request.requestedFloor < -2: # assuming there are 2 basement floors
+    if request.requestedFloor < -2 or request.requestedFloor > 20: # assuming there only are 2 basement floors and 20 floors above
         raise HTTPException(status_code=400, detail="Invalid floor number")
+    
     
     last_demand = db.query(ElevatorDemand).order_by(ElevatorDemand.id.desc()).first()
     
@@ -54,4 +55,4 @@ async def get_demand_history(db: Session = Depends(get_db)):
 
         return {"data": history}
     except Exception as e:
-        return {"error": e}
+        return {"error": str(e)}
